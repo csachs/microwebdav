@@ -1,6 +1,6 @@
 # microwebdav
 
-A v ery tiny, basic WebDAV server, written in Go. Mostly gluing together a few libraries in a few lines.
+A very tiny, basic WebDAV server, written in Go. Mostly gluing together a few libraries in a few lines.
 
 **Warning**: This is code quickly written while not being very familiar with Go yet ... use at your own risk. In particular, take security into consideration when running this on a publicly accessible IP address. I do not know how secure this code, or the libraries used, are.
 
