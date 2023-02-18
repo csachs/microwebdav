@@ -2,7 +2,9 @@
 
 A very tiny, basic WebDAV server, written in Go. Mostly gluing together a few libraries in a few lines.
 
-**Warning**: This is code quickly written while not being very familiar with Go yet ... use at your own risk. In particular, take security into consideration when running this on a publicly accessible IP address. I do not know how secure this code, or the libraries used, are.
+**Warning**: This is code quickly written while not being very familiar with Go yet ... use at your own risk.
+In particular, take security into consideration when running this on a publicly accessible IP address.
+I do not know how secure this code, or the libraries used, are.
 
 ## Rationale
 
@@ -20,6 +22,7 @@ To be easily configured via Docker, `microwebdav` uses environment variables for
 By default, microwebdav will serve the current directory at port 8000, with username *user* and a random generated password shown at startup.
 
 Currently, no SSL support, this can be facilitated by a reverse proxy though.
+If desired, basic auth can be *disabled* by setting `MICROWEBDAV_AUTH_MODE` to `none`.
 
 ```bash
 > ./microwebdav 
@@ -32,13 +35,15 @@ Listening on :8888, serving "/tmp", credentials anotheruser cookie
 
 ## Docker
 
-`microwebdav` and its Docker image is around 9 MB compiled. It can be useful in Docker setups, where it can e.g. in orchestrated situations help to give external access to certain volumes. Bear in mind that no locking is happening, though, when parallel access could happen.
+`microwebdav` and its Docker image is around 9 MB compiled.
+It can be useful in Docker setups, where it can e.g. in orchestrated situations help to give external access to certain volumes.
+Bear in mind that no locking is happening, though, when parallel access could happen.
 
 ```bash
 # run it to serve the local directory 
-> docker run --rm -v `pwd`:/data -p 8000:8000 csachs/microwebdav
+> docker run --rm -v `pwd`:/data -p 8000:8000 ghcr.io/csachs/microwebdav:latest
 # run it and detach
-> docker run -d -p 8000:8000 csachs/microwebdav
+> docker run -d -p 8000:8000 ghcr.io/csachs/microwebdav:latest
 ```
 
 ## License

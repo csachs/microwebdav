@@ -24,7 +24,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
@@ -54,7 +54,7 @@ jobs:
           docker cp $IMAGE_NAME:/ image/
           rm -rf image/etc image/sys image/proc image/dev image/.dockerenv
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: ${{ env.IMAGE_NAME }}
           path: image/*

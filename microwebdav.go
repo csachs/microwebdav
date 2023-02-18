@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/handlers"
-	"github.com/justinas/alice"
 	"golang.org/x/net/webdav"
 	"log"
 	"net/http"
@@ -37,29 +36,50 @@ func param(name string, defaultValue string) string {
 func main() {
 	listen := param("listen", ":8000")
 	servePath := param("path", ".")
+	authMode := param("auth_mode", "basic")
 	userName := param("user", "user")
 	password := param("pass", randStr())
 
+	possibleHost := ""
+
+	if listen[0:1] != ":" {
+		possibleHost = listen
+	} else {
+		possibleHost = "localhost" + listen
+	}
+
 	logger := log.New(os.Stderr, "", 0)
-	logger.Print("Listening on ", listen, ", serving \"", servePath, "\", credentials ", userName, " ", password)
 
+	logger.Print("# listening on ", listen)
+	logger.Print("# serving", servePath)
 
-	//fileSystem := webdav.NewMemFS() //new(webdav.FileSystem)
-	fileSystem := webdav.Dir(servePath)
+	if authMode != "none" {
+		authMode = "basic"
+		logger.Print("# auth mode ", authMode, " credentials ", userName, " ", password)
+	} else {
+		logger.Print("# auth mode ", authMode)
+	}
 
-	// we use in-memory locking, so no one except this process should access the files
-	lockSystem := webdav.NewMemLS()
+	logger.Print("# possible url ", "http://", possibleHost, "/")
 
-	handler := new(webdav.Handler)
+	if authMode != "none" {
+		logger.Print("# possible url ", "http://", userName, ":", password, "@", possibleHost, "/")
+	}
 
-	handler.FileSystem = fileSystem
-	handler.LockSystem = lockSystem
+	webdavHandler := &webdav.Handler{
+		//fileSystem := webdav.NewMemFS() //new(webdav.FileSystem)
+		FileSystem: webdav.Dir(servePath),
+		// we use in-memory locking, so no one except this process should access the files
+		LockSystem: webdav.NewMemLS(),
+	}
 
-	chainedHandler := alice.New(
-		LogToStdout,
-		handlers.ProxyHeaders,
-		httpauth.SimpleBasicAuth(userName, password)).
-		Then(handler)
+	handler := httpauth.SimpleBasicAuth(userName, password)(webdavHandler)
+
+	if authMode == "none" {
+		handler = webdavHandler
+	}
+
+	chainedHandler := LogToStdout(handlers.ProxyHeaders(handler))
 
 	http.Handle("/", chainedHandler)
 

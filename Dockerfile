@@ -1,4 +1,4 @@
-FROM golang:1.17.6-alpine AS build
+FROM golang:1.20.1-alpine AS build
 
 WORKDIR $GOPATH/src/github.com/csachs/microwebdav
 
